@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#17120e">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="FG Delivery">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <link rel="stylesheet" href="styles.css">
+  <title>FG Delivery PWA</title>
+</head>
+<body>
+  <main class="app">
+    <header class="top">
+      <div class="brand">
+        <div class="logo">FG</div>
+        <div>
+          <span class="eyebrow">DELIVERY PWA</span>
+          <h1>Repartidor</h1>
+        </div>
+      </div>
+      <button id="installBtn" class="ghost hidden">Instalar app</button>
+    </header>
+
+    <section class="hero-card">
+      <div>
+        <span class="status-dot" id="statusDot"></span>
+        <span id="statusText">Rastreo detenido</span>
+      </div>
+      <h2 id="orderTitle">Pedido</h2>
+      <p id="orderMeta">Abre esta app desde el enlace privado del pedido.</p>
+
+      <div class="actions">
+        <button id="startBtn" class="primary">Iniciar rastreo GPS</button>
+        <button id="stopBtn" class="secondary" disabled>Detener</button>
+      </div>
+    </section>
+
+    <section class="card destination-card">
+      <span class="eyebrow">DESTINO</span>
+      <h3 id="customerName">Cliente</h3>
+      <p id="customerAddress">Aún no se ha cargado el destino.</p>
+      <div class="dest-actions">
+        <a id="openMapsBtn" class="map-link disabled" href="#" target="_blank" rel="noopener">Abrir en Google Maps</a>
+        <span id="distanceText">Distancia: —</span>
+      </div>
+      <div id="miniMap" class="mini-map"></div>
+    </section>
+
+    <section class="grid">
+      <article class="card">
+        <span>Latitud</span>
+        <strong id="lat">—</strong>
+      </article>
+      <article class="card">
+        <span>Longitud</span>
+        <strong id="lng">—</strong>
+      </article>
+      <article class="card">
+        <span>Precisión</span>
+        <strong id="accuracy">—</strong>
+      </article>
+      <article class="card">
+        <span>Última actualización</span>
+        <strong id="lastUpdate">—</strong>
+      </article>
+    </section>
+
+    <section class="card details">
+      <h3>Estado de la entrega</h3>
+      <div class="stepper">
+        <button data-status="Confirmado">Confirmado</button>
+        <button data-status="Preparando">Preparando</button>
+        <button data-status="En camino">En camino</button>
+        <button data-status="Entregado">Entregado</button>
+      </div>
+      <p class="note" id="statusHelp">Los botones “En camino” y “Entregado” actualizan el pedido en WordPress mediante conexión segura desde Vercel.</p>
+    </section>
+
+    <section class="card details">
+      <h3>Configuración</h3>
+      <label>URL AJAX de WordPress
+        <input id="ajaxUrl" placeholder="https://tusitio.com/wp-admin/admin-ajax.php">
+      </label>
+      <label>Token privado del repartidor
+        <input id="driverToken" placeholder="Se carga automáticamente desde el enlace">
+      </label>
+      <div class="two">
+        <button id="saveConfig" class="secondary">Guardar</button>
+        <button id="testConfig" class="ghost">Probar conexión</button>
+      </div>
+    </section>
+
+    <section class="card details warning">
+      <h3>Importante</h3>
+      <p>La PWA puede mantener el rastreo mientras permanece abierta. Los navegadores móviles pueden limitar la geolocalización cuando la app queda completamente en segundo plano o el teléfono bloquea la pantalla. Esta app usa Wake Lock cuando el dispositivo lo permite para reducir interrupciones.</p>
+    </section>
+  </main>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
