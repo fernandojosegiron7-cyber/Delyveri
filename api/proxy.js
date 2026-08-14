@@ -34,7 +34,10 @@ export default async function handler(req, res) {
       'fg_driver_order_info',
       'fg_get_driver_delivery_info',
       'fg_update_driver_location',
-      'fg_driver_update_status'
+      'fg_driver_update_status',
+  'fg_confirm_delivery_code',
+  'fg_driver_chat',
+  'fg_public_branding'
     ]);
 
     if (!allowedActions.has(action)) {
