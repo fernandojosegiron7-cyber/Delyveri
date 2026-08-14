@@ -66,3 +66,12 @@ VERSIÓN 1.2 — DESTINO DEL CLIENTE
   - Línea entre ambos
 - Calcula distancia aproximada en km.
 - Requiere plugin WordPress FG Menú Digital Premium v1.3.0 o superior.
+
+
+VERSIÓN 1.3
+- Consulta el pedido asignado al repartidor.
+- Muestra estado actual.
+- Permite marcar En camino y Entregado.
+- Los cambios se guardan en WordPress.
+- El botón Probar conexión ya NO modifica la ubicación del pedido.
+- Refresca la información del pedido automáticamente.

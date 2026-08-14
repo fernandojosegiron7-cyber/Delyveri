@@ -109,16 +109,30 @@ async function loadDeliveryInfo(){
   const ajax=els.ajaxUrl.value.trim(), token=els.driverToken.value.trim();
   if(!ajax||!token) return;
   try{
-    const url=ajax+'?action=fg_get_driver_delivery_info&token='+encodeURIComponent(token);
-    const r=await fetch(url,{mode:'cors',credentials:'omit',cache:'no-store'});
-    const data=await r.json();
+    let url=ajax+'?action=fg_driver_order_info&token='+encodeURIComponent(token);
+    let r=await fetch(url,{mode:'cors',credentials:'omit',cache:'no-store'});
+    let data=await r.json();
+
+    if(!data.success){
+      url=ajax+'?action=fg_get_driver_delivery_info&token='+encodeURIComponent(token);
+      r=await fetch(url,{mode:'cors',credentials:'omit',cache:'no-store'});
+      data=await r.json();
+    }
     if(!data.success) return;
+
     const d=data.data;
     els.orderTitle.textContent='Pedido #'+d.order_id;
-    els.orderMeta.textContent=(d.customer_name||'Cliente')+' · '+(d.status||'');
-    els.customerName.textContent=d.customer_name||'Cliente';
+    const customer=d.customer||d.customer_name||'Cliente';
+    els.orderMeta.textContent=customer+' · '+(d.status||'');
+    els.customerName.textContent=customer;
     els.customerAddress.textContent=d.address||'Destino GPS del cliente';
-    if(d.customer_lat!=null&&d.customer_lng!=null){
+
+    document.querySelectorAll('.stepper button').forEach(b=>{
+      b.classList.toggle('active', b.dataset.status===d.status);
+      b.disabled = !['En camino','Entregado'].includes(b.dataset.status);
+    });
+
+    if(d.customer_lat!=null&&d.customer_lng!=null&&d.customer_lat!==''&&d.customer_lng!==''){
       customerLat=Number(d.customer_lat); customerLng=Number(d.customer_lng);
       els.openMapsBtn.href='https://www.google.com/maps?q='+customerLat+','+customerLng;
       els.openMapsBtn.classList.remove('disabled');
@@ -210,18 +224,45 @@ els.testConfig.addEventListener('click',async()=>{
   const ajax=els.ajaxUrl.value.trim(), token=els.driverToken.value.trim();
   if(!ajax||!token){toast('Configura URL y token');return;}
   try{
-    const body=new URLSearchParams({action:'fg_update_driver_location',token,lat:'14.0818',lng:'-87.2068',accuracy:'9999'});
-    const r=await fetch(ajax,{method:'POST',mode:'cors',credentials:'omit',headers:{'Content-Type':'application/x-www-form-urlencoded; charset=UTF-8'},body});
+    const url=ajax+'?action=fg_driver_order_info&token='+encodeURIComponent(token);
+    const r=await fetch(url,{mode:'cors',credentials:'omit',cache:'no-store'});
     const data=await r.json();
     toast(data.success?'Conexión correcta':'Error: '+(data?.data?.message||'sin respuesta'));
   }catch(e){toast('No se pudo conectar');}
 });
 
 document.querySelectorAll('.stepper button').forEach(btn=>{
-  btn.addEventListener('click',()=>{
-    document.querySelectorAll('.stepper button').forEach(b=>b.classList.remove('active'));
-    btn.classList.add('active');
-    toast('Estado local: '+btn.dataset.status);
+  btn.addEventListener('click',async()=>{
+    const status=btn.dataset.status;
+    if(!['En camino','Entregado'].includes(status)) return;
+
+    const ajax=els.ajaxUrl.value.trim(), token=els.driverToken.value.trim();
+    if(!ajax||!token){toast('Configura URL y token');return;}
+
+    try{
+      const body=new URLSearchParams({
+        action:'fg_driver_update_status',
+        token,
+        status
+      });
+      const r=await fetch(ajax,{
+        method:'POST',
+        mode:'cors',
+        credentials:'omit',
+        headers:{'Content-Type':'application/x-www-form-urlencoded; charset=UTF-8'},
+        body
+      });
+      const data=await r.json();
+      if(data.success){
+        document.querySelectorAll('.stepper button').forEach(b=>b.classList.toggle('active',b.dataset.status===status));
+        toast('Pedido actualizado: '+status);
+        loadDeliveryInfo();
+      }else{
+        toast(data?.data?.message||'No se pudo actualizar');
+      }
+    }catch(e){
+      toast('No se pudo conectar con WordPress');
+    }
   });
 });
 
@@ -247,3 +288,5 @@ if(urlToken){
 loadDeliveryInfo();
 els.saveConfig.addEventListener('click',()=>setTimeout(loadDeliveryInfo,150));
 
+
+setInterval(loadDeliveryInfo,5000);
